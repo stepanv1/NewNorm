@@ -1,5 +1,9 @@
 #use this to mount remote data locally on your linux machine
 #system('sshfs stepan.grinek@ldi-bl-007:/home/data1/share ~/mnt/grinux')
+# to commit in github
+#git remote add origin https://github.com/USERNAME/PROJECT.git
+#git push -u origin master
+
 ########################################################
 PATH_C=c("~/mnt/grinux/greenwood.group/PROJECTS/Marie_Hudson2/Methylation/09-08-2014/",
          "~/mnt/grinux/greenwood.group/PROJECTS/Ludmer_Van_Ijsendoorn/methylation/24-12-2014/",

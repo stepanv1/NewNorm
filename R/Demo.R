@@ -57,7 +57,7 @@ SampleInfo=SampleInfo[keep,]
 colnames(sigA)= substr(colnames(sigA),2,(nchar(ID[1])+1))
 colnames(sigB)= substr(colnames(sigB),2,(nchar(ID[1])+1))
 cov.match <- intersect(colnames(sigA),keep)
-SampleInfo2 <- SampleInfo[cov.match,]; sigA=sigA[,cov.match];sigB=sigB[,cov.match]
+SampleInfo2 <- SampleInfo[cov.match,]; sigA=sigA[ ,cov.match];sigB=sigB[,cov.match]
 cell_type=SampleInfo2$tissue #change column name here
 
 #check if order is matching

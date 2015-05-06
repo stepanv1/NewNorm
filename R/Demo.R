@@ -1,5 +1,5 @@
 #use this to mount remote data locally on your linux machine
-#system('sshfs stepan.grinek@ldi-bl-007:/home/data1/share ~/mnt/grinux')
+#system('sshfs aaa@bbb:/home/data1/share ~/mnt/grinux')
 # to commit in github
 #git remote add origin https://github.com/USERNAME/PROJECT.git
 #git push -u origin master

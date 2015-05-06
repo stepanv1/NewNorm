@@ -208,6 +208,8 @@ newnorm <- function(ifquant, sigA, sigB=NULL, Annot=NULL, quantiledat=NULL,
 }  # end function
 ###############################################################
 # separate pls fits for each quantile
+
+
 newnorm2 <- function(ifquant, sigA, sigB=NULL, Annot=NULL, quantiledat=NULL,
                      controlred, controlgrn, cp.types, cell_type, ncmp=3,
                      save.loess=TRUE, applyloess=FALSE, logit.quant=FALSE)

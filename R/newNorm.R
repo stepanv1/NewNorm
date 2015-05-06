@@ -40,6 +40,11 @@ qqfn2 <- function(vect1, vect2)  {
     xaxs <- sort(-log10( (1:nnonmiss - 0.5) / nnonmiss))
     points(xaxs, sort(-log10(vect2[!is.na(vect2)])), pch=16, cex=0.4, col=2)
 }
+#returns FALSE in the matrix where the element is not numeric
+NotNumeric<-function(a){
+    return(any(!is.finite(as.matrix(a)))) 
+}
+
 #####################################################
 #  ifquant=TRUE quantiles will be provided in quantiledat as a list
 #  ifquant=FALSE, calculate quantiles from sigA and sigB and Annot
@@ -49,6 +54,33 @@ newnorm <- function(ifquant, sigA, sigB=NULL, Annot=NULL, quantiledat=NULL,
                     controlred, controlgrn, cp.types, cell_type, ncmp=3,
                     save.loess=TRUE, applyloess=FALSE, logit.quant=FALSE)
 {
+    #checking sanity of the data
+    print("Checking sanity of the data...")
+    if (NotNumeric(sigA)){stop("There are non-numeric values in the matrix", '\n')}
+    if (NotNumeric(sigB)){stop("There are non-numeric values in the matrix", '\n')}
+    if (NotNumeric(controlred)){stop("There are non-numeric values in the matrix", '\n')}
+    if (NotNumeric(controlgrn)){stop("There are non-numeric values in the matrix", '\n')}
+    if (any(cell_type == '' | typeof(cell_type) != 'character' | is.na(cell_type))) {{stop("There are non-character values in cell_type", '\n')}}
+    if (any(cp.types == '' | typeof(cp.types) != 'character' | is.na(cp.types))) {{stop("There are non-character values in cp.types", '\n')}}
+    
+    #check that ID's match between sigA, sigB and control probe data
+    if (!(identical(colnames(controlgrn), colnames(sigA)) &
+    identical(colnames(controlred), colnames(sigA)) &
+    identical(colnames(sigB), colnames(sigA)))) {
+        if ((ncol(controlgrn) == ncol(sigA)) & (ncol(controlred) == ncol(sigA)) 
+            & (ncol(controlred) == ncol(sigB)) & (length(cp.types) == ncol(sigB)) & (length(cell_type) == ncol(sigB))){
+            ix <- sort(colnames(controlred), index.return = T)$ix
+            controlgrn<-controlgrn[,ix]; sigA<-sigA[,ix]; sigB<-sigB[,ix];
+            if (!(identical(colnames(controlgrn), colnames(sigA)) &
+                      identical(colnames(controlred), colnames(sigA)) &
+                      identical(colnames(sigB), colnames(sigA)))){
+                stop("Sample names do not match.", '\n')}
+            
+        } else{stop("Data dimensions or samples names do not match.", '\n')}
+    }
+        
+    print("Data is ok.")
+    
     nr <- nrow(sigA)
     qntllist <- c((0.5)/nr, seq(0.001, 0.009, 0.001), seq(0.01,0.05,0.01), 
                   seq(0.07,0.93,by=0.02), seq(0.95,0.99,0.01), seq(0.991,0.999,0.001),
@@ -102,7 +134,7 @@ newnorm <- function(ifquant, sigA, sigB=NULL, Annot=NULL, quantiledat=NULL,
         load("quantilesB.II.RData")
     }
     
-    # assume log transformation has already bee done
+    # assume log transformation has already been done
     # construct control probe summaries, averages by type of control probe
     # then specifically create columns by cell type
     cp.type.tab <- table(cp.types)

@@ -1,1 +1,2 @@
-import(pls)
+import('pls')
+export('newnorm')

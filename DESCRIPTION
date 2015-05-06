@@ -8,3 +8,4 @@ Maintainer: Stepan Grinek <stepan.grienk@ladydavis.ca>
 Description: More about what it does (maybe more than one line)
 License: GPL-3
 Imports: pls
+Suggests: BiocStyle

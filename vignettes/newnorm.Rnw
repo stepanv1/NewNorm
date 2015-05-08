@@ -1,7 +1,76 @@
 \documentclass{article}
+% \VignettePackage{ASGSCA}
+% \VignetteIndexEntry{Association Studies using Generalized Structured Equation Models.}
+\usepackage{graphicx}
+\usepackage[margin=2cm]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{array}
+\usepackage{color}
+\usepackage{underscore}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+\usepackage{verbatim}
+%\usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
+\usepackage{Sweave}%
+% for bold symbols in mathmode
+\usepackage{bm}
+\usepackage{setspace}
+\doublespacing
+
+\SweaveOpts{keep.source=TRUE}
+
+\title{Using ASGSCA}
+\author{Celia Greenwood, Stepan Grinek . .}
+
+\date{\today}
+\sloppy
+\hyphenpenalty 10000
+
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+
+%% Note: These are explained in '?RweaveLatex' :
+%<<preliminaries, echo=FALSE>>=
+%options(width=75)
+%@
+
+\section{Introduction}
+
+
+The \textbf{newNorm}  package provides...
+
+\section{Package use}
+
+
+ We created small sample data set  $N=96$ individuals ...
+ 
+ %The code to be inserted
+%\begin{Verbatim}
+<<>>= 
+    library(newNorm)
+    data("data")
+    ncmp <- 4
+    newnormout <- newnorm(ifquant=FALSE, sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
+                      controlred=matred, controlgrn=matgrn, 
+                      cp.types=cp.types, cell_type = cell_type,
+                      ncmp = ncmp, save.loess=TRUE, applyloess=TRUE, logit.quant=TRUE)
+    origBeta <- newnormout[[1]]
+    newBeta <- newnormout[[2]]
+    rownames(newBeta) <- rownames(origBeta)
+    colnames(newBeta) <- colnames(origBeta)
+@
+%\end{Verbatim}
+
+\begin{thebibliography}{}
+
+\bibitem[De Leeuw, Young and Takane (1976)]{deLeeuw1976}  de Leeuw, J., Young, F. W., and Takane, Y. (1976). Additive structure in qualitative data: An alternating least squares method with optimal scaling features. \emph{Psychometrika}, 41, 471-503.
+
+\end{thebibliography}
+ 
 
 
 

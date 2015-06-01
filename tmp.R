@@ -3,7 +3,7 @@
 # to commit in github
 #git remote add origin https://github.com/USERNAME/PROJECT.git
 #git push -u origin master
-
+library(pls)
 ########################################################
 PATH_C=c("~/mnt/grinux/greenwood.group/PROJECTS/Marie_Hudson2/Methylation/09-08-2014/",
          "~/mnt/grinux/greenwood.group/PROJECTS/Ludmer_Van_Ijsendoorn/methylation/24-12-2014/",
@@ -88,14 +88,14 @@ identical(colnames(matgrn), rownames(SampleInfo))
 
 ##### normalize data #
 # this creates the fits required to do the normalization
-#sigAsample<-sigA[1:1000,]; sigBsample=sigB[1:1000,]; Annotsample<-Annot[1:1000,] 
+sigAsample<-sigA[1:10000,]; sigBsample=sigB[1:10000,]; Annotsample<-Annot[1:10000,] 
 save(sigAsample, sigBsample, Annotsample, matred, matgrn, cp.types, cell_type, file='data.Rda')
 
 
-newnormout <- newnorm(ifquant=FALSE, sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
+newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
                       controlred=matred, controlgrn=matgrn, 
                       cp.types=cp.types, cell_type = cell_type,
-                      ncmp = ncmp, save.loess=TRUE, applyloess=TRUE, logit.quant=TRUE)
+                       ncmp=3, save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE)
 origBeta <- newnormout[[1]]
 newBeta <- newnormout[[2]]
 rownames(newBeta) <- rownames(origBeta)

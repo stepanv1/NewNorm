@@ -4,7 +4,7 @@ Title: Normalization procedure for Infinium HumanMethylation450 BeadChip Kit
 Version: 0.99.1
 Date: 2015-04-29
 Author: Celia Greenwood <celia.greenwood@>mcgill.ca>, Stepan Grinek <stepan.grienk@ladydavis.ca>
-Maintainer: Stepan Grinek <stepan.grienk@ladydavis.ca>
+Maintainer: Stepan Grinek <stepan.grinek@ladydavis.ca>
 Description: More about what it does (maybe more than one line)
 License: GPL-3
 Imports: pls

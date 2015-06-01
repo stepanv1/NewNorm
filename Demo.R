@@ -2,6 +2,7 @@
 ##### normalize data #
 # this creates the fits required to do the normalization
 #sigAsample<-sigA[1:1000,]; sigBsample=sigB[1:1000,]; Annotsample<-Annot[1:1000,] 
+library(pls)
 save(sigAsample, sigBsample, Annotsample, matred, matgrn, cp.types, cell_type, file='data.Rda')
 
 

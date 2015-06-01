@@ -9,6 +9,51 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
                     controlred, controlgrn, cp.types, cell_type, ncmp=3,
                     save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE)
 {
+    # functions
+    logitfn <- function(x) { log(x/(1-x)) }
+    ##
+    mult1 <- function(x, vec1) return(x*vec1)
+    ##
+    sum1 <- function(x, v2) { return(x + v2) }
+    ##
+    extractqnt <- function(x, i, AB, ncmp)  { 
+        return(x$fitted.values[i,AB,ncmp])  }
+    ##
+    ## just the usual lm functgion
+    lmfunction1<- function(yvec, xmat)  {
+        if (sum(is.na(yvec))==0)  {
+            fit1 <- lm(yvec ~ cell_type/Disease + Sex + age_quant, data = xmat)
+            cfit1 <- summary(fit1)$coefficients
+            fit2 <- anova(fit1)
+            outp <- c(cfit1[2:nrow(cfit1),4],fit2[4,5])
+            names(outp) <- c(rownames(cfit1[2:nrow(cfit1)]),rownames(fit2)[4])
+            return(outp)   
+        }}
+    ##
+    qqfn <- function(vect1)  {
+        nnonmiss <- sum(!is.na(vect1))
+        xaxs <- sort(-log10( (1:nnonmiss - 0.5) / nnonmiss))
+        plot(c(0, max(xaxs)), c(0, max(-log10(vect1), na.rm=TRUE)), type='n', 
+             xlab='Expected', ylab='Observed')
+        abline(0,1)
+        points(xaxs, sort(-log10(vect1[!is.na(vect1)])), pch=16, cex=0.4)
+    }
+    ##
+    qqfn2 <- function(vect1, vect2)  {
+        nnonmiss <- sum(!is.na(vect1))
+        xaxs <- sort(-log10( (1:nnonmiss - 0.5) / nnonmiss))
+        plot(c(0, max(xaxs)), c(0, max(-log10(vect1), na.rm=TRUE)), type='n', 
+             xlab='Expected', ylab='Observed')
+        abline(0,1)
+        points(xaxs, sort(-log10(vect1[!is.na(vect1)])), pch=16, cex=0.4, col=1)
+        nnonmiss <- sum(!is.na(vect2))
+        xaxs <- sort(-log10( (1:nnonmiss - 0.5) / nnonmiss))
+        points(xaxs, sort(-log10(vect2[!is.na(vect2)])), pch=16, cex=0.4, col=2)
+    }
+    
+    NotNumeric<-function(a){
+            return(any(!is.finite(as.matrix(a)))) 
+        }
     
     #checking sanity of the data
     print("Checking sanity of the data...")
@@ -116,6 +161,14 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     ctl.covmat <- cbind(mat.by.ct, apply(mat.by.ct, 2, mult1, ind[1,]))
     for(j in 2:length(unique(cell_type))){
         ctl.covmat <- cbind(ctl.covmat, apply(mat.by.ct, 2, mult1, ind[j,]))
+    }
+    
+    
+    if (save.quant)  {
+        save(ctl.covmat, file="ctl.covmat.RData")
+    }
+    if (!save.quant)  {
+    load("ctl.covmat.RData")
     }
     
     # here are the actual fits, one for each quantile in qntllist

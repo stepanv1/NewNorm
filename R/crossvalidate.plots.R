@@ -117,21 +117,27 @@ mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
 legend(-.1,1, # Find suitable coordinates by trial and error
        c("one", "two"), lty=1, lwd=3, col=c("navy", "orange"), box.col=NA)
 
-par(mar=c(5.1, 4.1, 5.1, 2.1))
-m <- matrix(c(1,2,3,4,5,6,7,7,7), nrow = 3, ncol = 3, byrow = TRUE)
-#mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
-layout(mat = m, heights = c(0.4,0.4,0.2))
-#plot.new()
-#text(0.5,0.5,"First title",cex=2,font=2)
-#plot.new()
-#mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
 
-matplot(t(apply(RMSEP(fit2cvA.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'A red', type = "l", col=1:ncmp.large, lty=1)
-matplot(t(apply(RMSEP(fit2cvB.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'B red', type = "l" , col=1:ncmp.large, lty=1)
-matplot(t(apply(RMSEP(fit2cvA.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'A grn', type = "l" , col=1:ncmp.large, lty=1)
+pdf(file = 'graph.pdf')
+par(mar=c(5.1, 4.1, 5.1, 2.1))
+m <- matrix(c(1,1,1,2,3,4,5,6,7,8,8,8), nrow = 4, ncol = 3, byrow = TRUE)
+#mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
+layout(mat = m, heights = c(0.2,0.35,0.35,0.2))
+
+par(mar=c(0, 0, 0, 0))
+plot.new()
+text(0.5, 0.4,"Root mean square error of prediction",cex=2,font=1.5)
+#mtext("Root mean square error of prediction",cex=2,font=2)
+#plot.new()
+#mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
+par(mar=c(3, 3, 3, 3), mgp = c(2.0, 0.5, 0))
+matplot(t(apply(RMSEP(fit2cvA.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="Error", main= 'A red', type = "l", col=1:ncmp.large, lty=1)
+
+matplot(t(apply(RMSEP(fit2cvB.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'B red', type = "l" , col=1:ncmp.large, lty=1)
+matplot(t(apply(RMSEP(fit2cvA.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'A grn', type = "l" , col=1:ncmp.large, lty=1)
 matplot(t(apply(RMSEP(fit2cvB.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'B grn', type = "l" , col=1:ncmp.large, lty=1)
-matplot(t(apply(RMSEP(fit2cvA.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'A II', type = "l" , col=1:ncmp.large, lty=1)
-matplot(t(apply(RMSEP(fit2cvB.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'B II', type = "l" , col=1:ncmp.large, lty=1)
+matplot(t(apply(RMSEP(fit2cvA.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'A II', type = "l" , col=1:ncmp.large, lty=1)
+matplot(t(apply(RMSEP(fit2cvB.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'B II', type = "l" , col=1:ncmp.large, lty=1)
 
 par(mar=c(0, 0, 1, 0))
 # c(bottom, left, top, right)
@@ -139,8 +145,8 @@ plot.new()
 #plot.new()
 #plot(1, type = "n", axes=FALSE, xlab="", ylab="")
 #plot_colors <- c("blue","black", "green", "orange", "pink")
-legend(x = "top",inset = 0,
+legend(title='NUmber of PLS components:', x = "top",inset = 0,
        legend = 1:ncmp.large, 
        col=1:ncmp.large, lty=1, cex=1, horiz = TRUE)
-Title("My 'Title' in a strange place", side = 3, line = -21, outer = TRUE)
-
+#title("My 'Title' in a strange place", side = 3, line = -21, outer = TRUE)
+dev.off()

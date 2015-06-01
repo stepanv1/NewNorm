@@ -1,6 +1,5 @@
-###  STEPAN there should be a default Annot matrix with required information for all probes.
-###  Can you start directly with IDAT files as an option?
-###  sigA and sigB have had log transforamtions prior this should be incoporated (log (1+x))
+###  TODO there should be a default Annot matrix with required information for all probes.
+###  ###  sigA and sigB have had log transforamtions prior this should be incoporated (log (1+x))
 
 ## if you use GenomeStudio to extract control probes, then they would be in a certain order
 ## that we could use
@@ -80,7 +79,7 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
         } else{stop("Data dimensions or samples names do not match.", '\n')}
     }
     
-    ### STEPAN add a check that all probes in sigA and sigB also exist in Annot (Annot can be bigger but cannot be smaller)
+    ### TODO add a check that all probes in sigA and sigB also exist in Annot (Annot can be bigger but cannot be smaller)
     ### then extract relevant rows from Annot
     
     print("Data is ok.")
@@ -92,7 +91,7 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
                   (nr-0.5)/nr)
     nqnt <- length(qntllist)  # number of desired quantiles
     
-    ####! STEPAN good to add special treatment of X and Y chromosomes.  See Fortin et al. particularly for Y
+    ####! TODO good to add special treatment of X and Y chromosomes.  See Fortin et al. particularly for Y
     if (save.quant)  {
         quantilesA.red <- matrix(NA, ncol(sigA), nqnt)   
         quantilesA.grn <- quantilesA.red;  quantilesA.II <- quantilesA.red
@@ -138,7 +137,7 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
         load("quantilesB.II.RData")
     }
     
-    # STEPAN get cp.types from control probe data automatically
+    # TODO get cp.types from control probe data automatically
     # do log(x+1) of the control probes prior to code below
     
     # assume log transformation has already been done
@@ -231,5 +230,5 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
 
 
 
-### STEPAN add in a new function that does cross-validation with different numbers of components and plots results.  
+### TODO add in a new function that does cross-validation with different numbers of components and plots results.  
 ### I have code to help with this.

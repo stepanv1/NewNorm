@@ -132,7 +132,6 @@ text(0.5, 0.4,"Root mean square error of prediction",cex=2,font=1.5)
 #mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
 par(mar=c(3, 3, 3, 3), mgp = c(2.0, 0.5, 0))
 matplot(t(apply(RMSEP(fit2cvA.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="Error", main= 'A red', type = "l", col=1:ncmp.large, lty=1)
-
 matplot(t(apply(RMSEP(fit2cvB.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'B red', type = "l" , col=1:ncmp.large, lty=1)
 matplot(t(apply(RMSEP(fit2cvA.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'A grn', type = "l" , col=1:ncmp.large, lty=1)
 matplot(t(apply(RMSEP(fit2cvB.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'B grn', type = "l" , col=1:ncmp.large, lty=1)
@@ -145,7 +144,7 @@ plot.new()
 #plot.new()
 #plot(1, type = "n", axes=FALSE, xlab="", ylab="")
 #plot_colors <- c("blue","black", "green", "orange", "pink")
-legend(title='NUmber of PLS components:', x = "top",inset = 0,
+legend(title='Number of PLS components:', x = "top",inset = 0,
        legend = 1:ncmp.large, 
        col=1:ncmp.large, lty=1, cex=1, horiz = TRUE)
 #title("My 'Title' in a strange place", side = 3, line = -21, outer = TRUE)

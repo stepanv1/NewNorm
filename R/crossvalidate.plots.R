@@ -3,7 +3,7 @@
 # the creation of quantiles stays the same
 # the creation of the control covariate matrix stays the same
 # then these commands are run
-ncmp.large <- 15  # set this larger than the default
+ncmp.large <- 5  # set this larger than the default
 fit2cv.red <- plsr(cbind(quantilesA.red, quantilesB.red) ~ ctl.covmat, ncomp=ncmp.large, validation="CV")
 fit2cv.grn <- plsr(cbind(quantilesA.grn, quantilesB.grn) ~ ctl.covmat, ncomp=ncmp.large, validation="CV")
 fit2cv.II <- plsr(cbind(quantilesA.II, quantilesB.II) ~ ctl.covmat, ncomp=ncmp.large, validation="CV")
@@ -138,7 +138,7 @@ matplot(t(apply(RMSEP(fit2cvB.grn, estimate='adjCV', intercept=F)$val, 2, functi
 matplot(t(apply(RMSEP(fit2cvA.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'A II', type = "l" , col=1:ncmp.large, lty=1)
 matplot(t(apply(RMSEP(fit2cvB.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'B II', type = "l" , col=1:ncmp.large, lty=1)
 
-par(mar=c(0, 0, 1, 0))
+par(mar=c(0, 0, 1, 0)) 
 # c(bottom, left, top, right)
 plot.new()
 #plot.new()

@@ -95,7 +95,7 @@ save(sigAsample, sigBsample, Annotsample, matred, matgrn, cp.types, cell_type, f
 newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
                       controlred=matred, controlgrn=matgrn, 
                       cp.types=cp.types, cell_type = cell_type,
-                       ncmp=3, save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE)
+                       ncmp=3, save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE, validate=5)
 origBeta <- newnormout[[1]]
 newBeta <- newnormout[[2]]
 rownames(newBeta) <- rownames(origBeta)

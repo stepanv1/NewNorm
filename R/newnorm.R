@@ -6,7 +6,7 @@
 
 newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
                     controlred, controlgrn, cp.types, cell_type, ncmp=3,
-                    save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE)
+                    save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE, validate=FALSE)
 {
     # functions
     logitfn <- function(x) { log(x/(1-x)) }
@@ -54,8 +54,10 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
             return(any(!is.finite(as.matrix(a)))) 
         }
     
+    is.wholenumber <-  function(x){abs(x - round(x)) == 0}
+    
     #checking sanity of the data
-    print("Checking sanity of the data...")
+    cat("Checking sanity of the data...", '\n')
     if (NotNumeric(sigA)){stop("There are non-numeric values in the matrix", '\n')}
     if (NotNumeric(sigB)){stop("There are non-numeric values in the matrix", '\n')}
     if (NotNumeric(controlred)){stop("There are non-numeric values in the matrix", '\n')}
@@ -82,13 +84,16 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     ### TODO add a check that all probes in sigA and sigB also exist in Annot (Annot can be bigger but cannot be smaller)
     ### then extract relevant rows from Annot
     
-    print("Data is ok.")
+    cat("Data is ok.", '\n')
     
     
     nr <- nrow(sigA)
-    qntllist <- c((0.5)/nr, seq(0.001, 0.009, 0.001), seq(0.01,0.05,0.01), 
-                  seq(0.07,0.93,by=0.02), seq(0.95,0.99,0.01), seq(0.991,0.999,0.001),
-                  (nr-0.5)/nr)
+    #qntllist <- c((0.5)/nr, seq(0.001, 0.009, 0.001), seq(0.01,0.05,0.01), 
+    #              seq(0.07,0.93,by=0.02), seq(0.95,0.99,0.01), seq(0.991,0.999,0.001),
+    #              (nr-0.5)/nr)
+    qntllist <- c(seq((0.5)/nr, 0.0009, 0.0001), seq(0.001, 0.009, 0.001), seq(0.01,0.05,0.01), 
+              seq(0.07,0.93,by=0.02), seq(0.95,0.99,0.01), seq(0.991,0.999,0.001),
+              seq(0.999 ,(nr-0.5)/nr,0.0001 ))
     nqnt <- length(qntllist)  # number of desired quantiles
     
     ####! TODO good to add special treatment of X and Y chromosomes.  See Fortin et al. particularly for Y
@@ -169,6 +174,67 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     if (!save.quant)  {
     load("ctl.covmat.RData")
     }
+    
+    ######################################################################################
+    #validation chunck
+    if (validate){
+        if (NotNumeric(validate)){stop('Validate parameter should be integer bigger than 1')}
+        else{if(!is.wholenumber(validate)){
+            stop('Validate parameter should be integer bigger than 1')} 
+        }
+        
+        cat('\n', 'Starting validation with ', validate , ' PLS components',  '\n')
+    
+        cores=1 #probably does not make sense to use parallelisation
+        pls.options(parallel = cores)
+        
+        fit2cvA.red <- plsr(quantilesA.red ~ ctl.covmat, ncomp=validate, validation="CV")
+        fit2cvB.red <- plsr(quantilesB.red ~ ctl.covmat, ncomp=validate, validation="CV")
+        fit2cvA.grn <- plsr(quantilesA.grn ~ ctl.covmat, ncomp=validate, validation="CV")
+        fit2cvB.grn <- plsr(quantilesB.grn ~ ctl.covmat, ncomp=validate, validation="CV")
+        fit2cvA.II <- plsr(quantilesA.II ~ ctl.covmat, ncomp=validate, validation="CV")
+        fit2cvB.II <- plsr(quantilesB.II ~ ctl.covmat, ncomp=validate, validation="CV")
+    
+        pdf(file = 'validationCurves.pdf')
+        par(mar=c(5.1, 4.1, 5.1, 2.1))
+        m <- matrix(c(1,1,1,2,3,4,5,6,7,8,8,8), nrow = 4, ncol = 3, byrow = TRUE)
+        #mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
+        layout(mat = m, heights = c(0.2,0.35,0.35,0.2))
+        
+        par(mar=c(0, 0, 0, 0))
+        plot.new()
+        text(0.5, 0.4,"Root mean square error of prediction",cex=2,font=1.5)
+        #mtext("Root mean square error of prediction",cex=2,font=2)
+        #plot.new()
+        #mtext("Root mean square error of prediction ", line=2, font=2, cex=1.2)
+        par(mar=c(3, 3, 3, 3), mgp = c(2.0, 0.5, 0))
+        matplot(t(apply(RMSEP(fit2cvA.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="Error", main= 'A red', type = "l", col=1:validate, lty=1)
+        matplot(t(apply(RMSEP(fit2cvB.red, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'B red', type = "l" , col=1:validate, lty=1)
+        matplot(t(apply(RMSEP(fit2cvA.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), ylab="", main= 'A grn', type = "l" , col=1:validate, lty=1)
+        matplot(t(apply(RMSEP(fit2cvB.grn, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="Error", main= 'B grn', type = "l" , col=1:validate, lty=1)
+        matplot(t(apply(RMSEP(fit2cvA.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'A II', type = "l" , col=1:validate, lty=1)
+        matplot(t(apply(RMSEP(fit2cvB.II, estimate='adjCV', intercept=F)$val, 2, function(x) x)), xlab="Quantiles", ylab="", main= 'B II', type = "l" , col=1:validate, lty=1)
+        
+        par(mar=c(0, 0, 1, 0)) 
+        # c(bottom, left, top, right)
+        plot.new()
+        #plot.new()
+        #plot(1, type = "n", axes=FALSE, xlab="", ylab="")
+        #plot_colors <- c("blue","black", "green", "orange", "pink")
+        legend(title='Number of PLS components:', x = "top",inset = 0,
+               legend = 1:validate, 
+               col=1:validate, lty=1, cex=1, horiz = TRUE)
+        #title("My 'Title' in a strange place", side = 3, line = -21, outer = TRUE)
+        dev.off()
+        
+        
+        
+        cat('Check your working directory for the file "validationCurves.pdf"', '\n')
+        return()
+    }    
+    
+    
+    
     
     # here are the actual fits, one for each quantile in qntllist
     fit2.red <- list() ; fit2.grn <- list();  fit2.II <- list()

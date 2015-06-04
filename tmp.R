@@ -22,10 +22,10 @@ annotation<-read.delim(paste(PATH,"RAW_DATA/Annotation_Illumina450k.txt",sep="")
 load(paste(PATH,"RAW_DATA/RAWSignalA.RData", sep=""))  # latest version Feb  2015  
 rownames(datSigA) <- datSigA[,1]
 cpg=intersect(rownames(datSigA),annotation$TargetID)
-sigA <- log(1 + datSigA[cpg,2:ncol(datSigA)])
+sigA <- datSigA[cpg,2:ncol(datSigA)]
 load(paste(PATH,"RAW_DATA/RAWSignalB.RData", sep=""))  # latest version Feb  2015  
 rownames(datSigB) <- datSigB[,1]
-sigB <- log(1 + datSigB[cpg,2:ncol(datSigB)])
+sigB <- datSigB[cpg,2:ncol(datSigB)]
 
 
 # reduce annotation information to the same probe set and reorder
@@ -73,8 +73,8 @@ CONTROL<-read.delim(paste(PATH,"/RAW_DATA/ControlProbeProfile.txt",sep=""),as.is
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # this needs to be revised with care if control data are available for all sample
 # apply  a log transformation to all signals  (this decision could be altered)
-matgrn <- log2(1+CONTROL[,seq(from=4, to=ncol(CONTROL), by=3)])
-matred <- log2(1+CONTROL[,seq(from=5, to=ncol(CONTROL), by=3)])
+matgrn <- CONTROL[,seq(from=4, to=ncol(CONTROL), by=3)]
+matred <- CONTROL[,seq(from=5, to=ncol(CONTROL), by=3)]
 colnames(matgrn)= substr(colnames(matgrn),2,(nchar(ID[1])+1))
 colnames(matred)= substr(colnames(matred),2,(nchar(ID[1])+1))
 matgrn=matgrn[,cov.match]
@@ -89,13 +89,23 @@ identical(colnames(matgrn), rownames(SampleInfo))
 ##### normalize data #
 # this creates the fits required to do the normalization
 sigAsample<-sigA[1:10000,]; sigBsample=sigB[1:10000,]; Annotsample<-Annot[1:10000,] 
-save(sigAsample, sigBsample, Annotsample, matred, matgrn, cp.types, cell_type, file='data.Rda')
-
+save(sigAsample, sigBsample, Annotsample, matred, matgrn, cp.types, cell_type, file='./data/data.rda')
+Annot<-default.Annot
+devtools::use_data(Annot, internal = F, overwrite = T)
+devtools::use_data(cp.types, internal = F, overwrite = T)
 
 newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
                       controlred=matred, controlgrn=matgrn, 
                       cp.types=cp.types, cell_type = cell_type,
-                       ncmp=3, save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE, validate=5)
+                       ncmp=4, save.quant=TRUE, save.loess=TRUE, apply.loess=TRUE, logit.quant=TRUE, validate=F)
+
+
+newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample,
+                      controlred=matred, controlgrn=matgrn, 
+                      cp.types=cp.types, cell_type = cell_type,
+                      ncmp=4, save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE, validate=5)
+
+
 origBeta <- newnormout[[1]]
 newBeta <- newnormout[[2]]
 rownames(newBeta) <- rownames(origBeta)

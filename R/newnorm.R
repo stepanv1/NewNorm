@@ -4,9 +4,9 @@
 ## if you use GenomeStudio to extract control probes, then they would be in a certain order
 ## that we could use
 
-newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
-                    controlred, controlgrn, cp.types, cell_type, ncmp=3,
-                    save.quant=TRUE, save.loess=TRUE, apply.loess=FALSE, logit.quant=FALSE, validate=FALSE)
+newnorm <- function(sigA, sigB, Annot=NULL, quantiledat=NULL,
+                    controlred, controlgrn, cp.types=NULL, cell_type, ncmp=4,
+                    save.quant=TRUE, save.loess=TRUE, apply.loess=TRUE, logit.quant=TRUE, validate=FALSE)
 {
     # functions
     logitfn <- function(x) { log(x/(1-x)) }
@@ -56,6 +56,71 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     
     is.wholenumber <-  function(x){abs(x - round(x)) == 0}
     
+    #Function, adjusting beta values with results of loess regression
+    applynewnorm <- function(loessfits, sigA, sigB, Annot)  {
+        
+        wh.red <- which(Annot$Type=='I' & Annot$Color=="Red")
+        wh.grn <- which(Annot$Type=='I' & Annot$Color=="Grn")
+        wh.II <- which(Annot$Type=='II')
+        
+        rankmatA.red <- (apply(sigA[wh.red,],2,  rank) - 0.5)/length(wh.red)
+        rankmatA.grn <- (apply(sigA[wh.grn,],2,  rank) - 0.5)/length(wh.grn)
+        rankmatA.II <- (apply(sigA[wh.II,],2,  rank) - 0.5)/length(wh.II)
+        
+        rankmatB.red <- (apply(sigB[wh.red,],2,  rank) - 0.5)/length(wh.red)
+        rankmatB.grn <- (apply(sigB[wh.grn,],2,  rank) - 0.5)/length(wh.grn)
+        rankmatB.II <- (apply(sigB[wh.II,],2,  rank) - 0.5)/length(wh.II)
+        
+        predmatA.red <- matrix(NA, nrow=nrow(rankmatA.red), ncol = ncol(rankmatA.red))
+        predmatA.grn <- matrix(NA, nrow=nrow(rankmatA.grn), ncol = ncol(rankmatA.grn))
+        predmatA.II <- matrix(NA, nrow=nrow(rankmatA.II), ncol = ncol(rankmatA.II))
+        predmatB.red <- matrix(NA, nrow=nrow(rankmatB.red), ncol = ncol(rankmatB.red))
+        predmatB.grn <- matrix(NA, nrow=nrow(rankmatB.grn), ncol = ncol(rankmatB.grn))
+        predmatB.II <- matrix(NA, nrow=nrow(rankmatB.II), ncol = ncol(rankmatB.II))
+        for (i in (1:ncol(predmatA.red)))  {
+            predmatA.red[,i] <- predict(loessfits[[1]][[i]], newdata = logitfn(rankmatA.red[,i]))
+            predmatA.grn[,i] <- predict(loessfits[[2]][[i]], newdata = logitfn(rankmatA.grn[,i]))
+            predmatA.II[,i] <- predict(loessfits[[3]][[i]], newdata = logitfn(rankmatA.II[,i]))
+            predmatB.red[,i] <- predict(loessfits[[4]][[i]], newdata = logitfn(rankmatB.red[,i]))
+            predmatB.grn[,i] <- predict(loessfits[[5]][[i]], newdata = logitfn(rankmatB.grn[,i]))
+            predmatB.II[,i] <- predict(loessfits[[6]][[i]], newdata = logitfn(rankmatB.II[,i]))
+        }
+        predmatA <- matrix(NA, nrow(sigA), ncol(predmatA.red))
+        predmatB <- predmatA
+        predmatA[wh.red,] <- predmatA.red
+        predmatA[wh.grn,] <- predmatA.grn
+        predmatA[wh.II,] <- predmatA.II
+        predmatB[wh.red,] <- predmatB.red
+        predmatB[wh.grn,] <- predmatB.grn
+        predmatB[wh.II,] <- predmatB.II
+        
+        newBeta <- (exp(predmatB)-1)/(exp(predmatA) + exp(predmatB)-2)
+        
+        #rm(predmatA); rm(predmatB); rm(predmatA.red); rm(predmatA.grn); rm(predmatA.II)
+        #rm(predmatB.red); rm(predmatB.grn); rm(predmatB.II)
+        
+        # now for residuals
+        #   residmat <- (exp(sigB)-1)/(exp(sigA) + exp(sigB) - 2 + 0.1)  - predBeta
+        origBeta <- (exp(sigB)-1)/(exp(sigA) + exp(sigB) - 2  + 0.1)
+        origBeta <- (origBeta * 999 + 0.5)/1000 
+        rownames(newBeta) <- rownames(origBeta)
+        colnames(newBeta) <- colnames(origBeta)
+        return(list(origBeta, newBeta))
+    }
+    ###############################
+    
+    
+    
+    
+    if (is.null(Annot))
+        {cat("Since Annot is NULL using default annotation.", '\n')
+        data('Annot', package='newNorm', envir = environment())
+    }
+    if (is.null(cp.types))
+    {cat("Since cp.types is NULL using default cp.types.", '\n')
+     data('cp.types', package='newNorm', envir = environment())
+    }
+    
     #checking sanity of the data
     cat("Checking sanity of the data...", '\n')
     if (NotNumeric(sigA)){stop("There are non-numeric values in the matrix", '\n')}
@@ -81,12 +146,20 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
         } else{stop("Data dimensions or samples names do not match.", '\n')}
     }
     
+    #check if annotation is ok, and subset annotation on the probes from Sig files
+    if(any(!(rownames(sigA) %in% rownames(Annot)))){stop("Probe names do not match annotation entries", '\n')}
+    cpg<-intersect(rownames(sigA), rownames(Annot))
+    Annot=Annot[cpg,]
+    
+    
     ### TODO add a check that all probes in sigA and sigB also exist in Annot (Annot can be bigger but cannot be smaller)
     ### then extract relevant rows from Annot
     
     cat("Data is ok.", '\n')
     
-    
+    sigA <- log2(1 + sigA)
+    sigB <- log2(1 + sigB)
+        
     nr <- nrow(sigA)
     #qntllist <- c((0.5)/nr, seq(0.001, 0.009, 0.001), seq(0.01,0.05,0.01), 
     #              seq(0.07,0.93,by=0.02), seq(0.95,0.99,0.01), seq(0.991,0.999,0.001),
@@ -144,6 +217,10 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     
     # TODO get cp.types from control probe data automatically
     # do log(x+1) of the control probes prior to code below
+    #add warning message log transform wasnr't !!!!!
+    
+    controlgrn <- log2(1 + controlgrn)
+    controlred <- log2(1 + controlgrn)
     
     # assume log transformation has already been done
     # construct control probe summaries, averages by type of control probe
@@ -183,7 +260,7 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
             stop('Validate parameter should be integer bigger than 1')} 
         }
         
-        cat('\n', 'Starting validation with ', validate , ' PLS components',  '\n')
+        cat('\n', 'Starting validation with ', validate , ' PLS components...',  '\n')
     
         cores=1 #probably does not make sense to use parallelisation
         pls.options(parallel = cores)
@@ -229,7 +306,7 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
         
         
         
-        cat('Check your working directory for the file "validationCurves.pdf"', '\n')
+        cat('Done. Check your working directory for the file "validationCurves.pdf"', '\n')
         return()
     }    
     
@@ -259,23 +336,23 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
     for (i in (1:nrow(quantilesA.red))) {    # i: over samples
         # assemble the fitted values into a vector
         fittedvals <-  unlist(lapply(fit2.red, extractqnt, i=i, AB=1, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsA.red <- c(loessfitsA.red, list(coef.fit))  
         fittedvals <-  unlist(lapply(fit2.grn, extractqnt, i=i, AB=1, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsA.grn <- c(loessfitsA.grn, list(coef.fit))  
         fittedvals <-  unlist(lapply(fit2.II, extractqnt, i=i, AB=1, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsA.II <- c(loessfitsA.II, list(coef.fit))  
         
         fittedvals <-  unlist(lapply(fit2.red, extractqnt, i=i, AB=2, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsB.red <- c(loessfitsB.red, list(coef.fit))  
         fittedvals <-  unlist(lapply(fit2.grn, extractqnt, i=i, AB=2, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsB.grn <- c(loessfitsB.grn, list(coef.fit))  
         fittedvals <-  unlist(lapply(fit2.II, extractqnt, i=i, AB=2, ncmp=ncmp))
-        coef.fit <- loess(fittedvals ~ xq, span = 0.25)
+        coef.fit <- loess(fittedvals ~ xq, span = 0.15)
         loessfitsB.II <- c(loessfitsB.II, list(coef.fit))  
     }
     if (save.loess)  {
@@ -296,5 +373,3 @@ newnorm <- function(sigA, sigB, Annot=default.Annot, quantiledat=NULL,
 
 
 
-### TODO add in a new function that does cross-validation with different numbers of components and plots results.  
-### I have code to help with this.

@@ -256,7 +256,7 @@ newnorm <- function(sigA, sigB, Annot=NULL, quantiledat=NULL,
     #validation chunck
     if (validate){
         if (NotNumeric(validate)){stop('Validate parameter should be integer bigger than 1')}
-        else{if(!is.wholenumber(validate)){
+        else{if(!is.wholenumber(validate) | (validate<=1)){
             stop('Validate parameter should be integer bigger than 1')} 
         }
         

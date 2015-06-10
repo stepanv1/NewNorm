@@ -1,46 +1,34 @@
-\name{newNorm-package}
-\alias{newNorm-package}
+\name{newNorm}
 \alias{newNorm}
 \docType{package}
 \title{
-What the package does (short line)
 NewNorm
 }
-\description{
-More about what it does (maybe more than one line)
- A concise (1-5 lines) description of the package
+\description{Package provides a function to normalize Illumina Infinium Human Methylation 450 BeadChip (Illumina 450K), correcting for  tissue and/or cell type.
 }
 \details{
 \tabular{ll}{
 Package: \tab newNorm\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 0.99.1\cr
 Date: \tab 2015-04-29\cr
-License: \tab What license is it under?\cr
+License: \tab GPL-3\cr
 }
-An overview of how to use the package, including the most important functions
 }
-\author{
-Who wrote it
+%%\author{Celia Greenwood, Stepan Grinek}
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-The author and/or maintainer of the package 
-}
-\references{
-Literature or other references for background information
-}
+%\references{
+%Literature or other references for background information
+%}
 
-\keyword{ package }
+%%\keyword{Methylation, Preprocessing, PLS}
 
-\examples{
-    data("data")
-    ncmp <- 4
-    newnormout <- newnorm(ifquant=FALSE, sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
-                      controlred=matred, controlgrn=matgrn, 
-                      cp.types=cp.types, cell_type = cell_type,
-                      ncmp = ncmp, save.loess=TRUE, applyloess=TRUE, logit.quant=TRUE)
-    origBeta <- newnormout[[1]]
-    newBeta <- newnormout[[2]]
-    rownames(newBeta) <- rownames(origBeta)
-    colnames(newBeta) <- colnames(origBeta)
-}
+%%\examples{
+%%    data("data")
+%%    ncmp <- 4
+%%   newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
+%%                      controlred=matred, controlgrn=matgrn, 
+%%                      cp.types=cp.types, cell_type = cell_type,
+%%                       ncmp=ncmp, save.quant=TRUE, save.loess=TRUE, apply.loess=TRUE, logit.quant=TRUE, validate=FALSE)
+    
+%%}

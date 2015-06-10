@@ -44,13 +44,11 @@
 The \textbf{newNorm} provides a function to normalize Illumina Infinium Human Methylation 450 BeadChip (Illumina 450K). This package is a further improvement of normalization method intoroduced by
 \cite{Fortin2014, Aryee2014} recently. In addition to percentile specific adjustments in funNorm, newNorm also corrects for tissue or cel type, which results in significant improvement of performance \cite{newNorm}. Another advantage of the method is that it uses Partial Least Square regression (PLS) instead of Principal Component regression.
 
-Min 2 celltypes
-
 Curent version of package does not provide a special treatment for X chromosome, to be included in subsequent version of the package. 
 
 \section{Package use}
 
-User is expected to provide an annotation table, containing information on probe names, probe type, color (for probes of type I), two methylation matrices with signal A and B (unmethylated and methylated sygnals) and matrices with control probes signal, separately for red and green channel, list of types of control probes and list of cell types. Annotation file and matrices with A, B and control signals are expected to be the output of Genome Studio (http://www.illumina.com/applications/microarrays/microarray-software/genomestudio.html) or, alternatevily, extracted from IDAT files generated on Illumina array platforms. Package also contains default annotation and list of control probes, which are loaded if Annot and cp.types are set to NULL in the newnorm function call.   
+User is expected to provide an annotation table, containing information on probe names, probe type, color (for probes of type I), two methylation matrices with signal A and B (unmethylated and methylated sygnals) and matrices with control probes signal, separately for red and green channel, list of types of control probes and the list of cell types/tissues, containing at least two different cell-types. Annotation file and matrices with A, B and control signals are expected to be the output of Genome Studio (http://www.illumina.com/applications/microarrays/microarray-software/genomestudio.html) or, alternatevily, extracted from IDAT files generated on Illumina array platforms. Package also contains default annotation and list of control probes, which are loaded if parameters Annot and cp.types are set to NULL in the newnorm function call.   
 
 We created small sample data set of $N=93$ individuals with 1000 probes to demonstrate the usage of our package. Samples are taken from cord blood and placenta. 
 Here is a basic call to normalize sample data set: 
@@ -63,7 +61,7 @@ Here is a basic call to normalize sample data set:
     newnormout <- newnorm(sigA=sigAsample, sigB=sigBsample, Annot=Annotsample, 
                       controlred=matred, controlgrn=matgrn, 
                       cp.types=cp.types, cell_type = cell_type,
-                       ncmp=ncmp, save.quant=TRUE, save.loess=TRUE, apply.loess=TRUE, logit.quant=TRUE, validate=F)
+                       ncmp=ncmp, save.quant=TRUE, save.loess=TRUE, apply.loess=TRUE, logit.quant=TRUE, validate=FALSE)
 
 @
 %\end{Verbatim}
@@ -79,8 +77,16 @@ Number of PLS components, ncmp, could be chosen after examining of the graph gen
 
 @
 %\end{Verbatim}
+Validation procedure will produce set of plots, one for each type of signal. Looking at figure \ref{val},
+for example, one can decide for 4 as areasonable choice for value of ncmp.
+%%Add graph and explanations of its meaning.
 
-Add graph and explanations of its meaning.
+\begin{figure}[val]
+\centering
+\includegraphics[width=10cm,height=10cm]{valid.jpg}
+\caption{Validation curves} \label{val}
+\end{figure}
+
 
 \begin{thebibliography}{}
 

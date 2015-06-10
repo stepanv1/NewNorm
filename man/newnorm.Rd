@@ -5,61 +5,60 @@
 Function to normalize Illumina Infinium Human Methylation 450 BeadChip (Illumina 450K)
 }
 \description{
-Function takes Illumina Infinium Human Methylation 450 BeadChip data ans performs normalization 
-correcting for quantile 
+Function performs normalization Illumina Infinium Human Methylation 450 BeadChip data, 
+correcting for quantile and tissue/cell type. 
 }
 \usage{
-newnorm(sigA, sigB, Annot = NULL, quantiledat = NULL, controlred, controlgrn, cp.types = NULL, cell_type, ncmp = 4, save.quant = TRUE, save.loess = TRUE, apply.loess = TRUE, logit.quant = TRUE, validate = FALSE)
+newnorm(sigA, sigB, Annot = NULL, quantiledat = NULL, controlred, controlgrn,\cr
+cp.types = NULL, cell_type, ncmp = 4, save.quant = TRUE, save.loess = TRUE,\cr 
+apply.loess = TRUE, logit.quant = TRUE, validate = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{sigA, sigB}{Matrices with signals A and B.
+  \item{sigA, sigB}{
+Matrices with signals A and B.
+}
+  \item{controlred, controlgrn}{
+Matrices with control probes signal.
+}
 
+\item{Annot}{
+Annotation matrix.
 }
-%%  \item{sigB}{
-%%     ~~Describe \code{sigB} here~~
-%%}
-  \item{Annot}{
-%%     ~~Describe \code{Annot} here~~
+ 
+\item{cp.types}{
+Controle probes types vector.
 }
-  \item{quantiledat}{
-%%     ~~Describe \code{quantiledat} here~~
+\item{cell_type}{
+Cell types vector.
 }
-  \item{controlred}{
-%%     ~~Describe \code{controlred} here~~
-}
-  \item{controlgrn}{
-%%     ~~Describe \code{controlgrn} here~~
-}
-  \item{cp.types}{
-%%     ~~Describe \code{cp.types} here~~
-}
-  \item{cell_type}{
-%%     ~~Describe \code{cell_type} here~~
-}
-  \item{ncmp}{
-%%     ~~Describe \code{ncmp} here~~
+\item{ncmp}{
+Number of PLS components.
 }
   \item{save.quant}{
-%%     ~~Describe \code{save.quant} here~~
+Logical, whether to save calculated quantiles.
 }
   \item{save.loess}{
-%%     ~~Describe \code{save.loess} here~~
+Logical, whether to save calculated results of loess regression.
 }
   \item{apply.loess}{
-%%     ~~Describe \code{apply.loess} here~~
+Logical, whether to apply results of loess regression. If TRUE matrix normalised beta values
+is returned
 }
   \item{logit.quant}{
-%%     ~~Describe \code{logit.quant} here~~
+Whether to apply logit transformation to quantiles. If not FALSE takes the maximum number
+of PLS components for validation.
 }
   \item{validate}{
-%%     ~~Describe \code{validate} here~~
+If not FALSE takes the maximum number of PLS components for validation.
 }
 }
 \details{
+Function works in two regimes, validation and  normalization. Validation regime is triggered by setting validate variable to the integer value bigger that 1.      
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
+If the validation regime is triggered (see details) the function creates a pdf file with validation curves. In normalization regime output can be either results of loess fitting (Celia, could you add better definitions here) or normalised beta values, depending on the value  apply.loess
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
